@@ -4,7 +4,7 @@ module fycollections_ptrlist
   implicit none
   private
 
-  public :: PtrList, PtrList_init
+  public :: PtrList, PtrList_init, size
 
   integer, parameter :: LIST_MIN_SIZE = 4
   
@@ -17,12 +17,18 @@ module fycollections_ptrlist
     procedure(destructInterface), nopass, pointer :: destruct
     procedure(isEqualInterface), nopass, pointer :: isEqual
   contains
+    procedure :: getSize
     procedure :: append
     procedure :: get
     procedure :: find
     final :: finalize
     procedure, private :: resizeStorage
   end type PtrList
+
+
+  interface size
+    module procedure PtrList_size
+  end interface size
 
 contains
 
@@ -39,6 +45,24 @@ contains
     this%isEqual => isEqual
 
   end subroutine PtrList_init
+
+
+  function PtrList_size(this) result(mySize)
+    type(PtrList), intent(in) :: this
+    integer :: mySize
+
+    mySize = this%getSize()
+
+  end function PtrList_size
+
+
+  function getSize(this) result(mySize)
+    class(PtrList), intent(in) :: this
+    integer :: mySize
+
+    mySize = this%nItems
+
+  end function getSize
 
 
   subroutine append(this, item)

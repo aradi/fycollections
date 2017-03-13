@@ -1,0 +1,9 @@
+.SECONDEXPANSION:
+
+type_intlist.o: $$(_modobj_fycollections)
+type_intlist.o = type_intlist.o $($(_modobj_fycollections))
+_modobj_type_intlist = type_intlist.o
+
+test_intlist.o: $$(_modobj_type_intlist)
+test_intlist.o = test_intlist.o $($(_modobj_type_intlist))
+

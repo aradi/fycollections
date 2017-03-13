@@ -1,0 +1,3 @@
+[submodule "external/fytest"]
+	path = external/fytest
+	url = https://bitbucket.org/aradi/fytest

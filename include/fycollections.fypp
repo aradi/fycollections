@@ -3,7 +3,7 @@
 #! Defines a list  
 #:def define_list_type(TYPENAME, ITEMTYPE)
 
-  public :: ${TYPENAME}$, ${TYPENAME}$_init
+  public :: ${TYPENAME}$, ${TYPENAME}$_init, size
 
   
   type :: ${TYPENAME}$
@@ -14,6 +14,10 @@
     procedure :: get
     procedure :: find
   end type ${TYPENAME}$
+
+  interface size
+    module procedure ${TYPENAME}$_size
+  end interface size
   
 contains
 
@@ -30,6 +34,15 @@ contains
     call PtrList_init(this%backend, pAssignTo, pDestruct, pIsEqual)
     
   end subroutine ${TYPENAME}$_init
+
+
+  function ${TYPENAME}$_size(this) result(mySize)
+    type(${TYPENAME}$), intent(in) :: this
+    integer :: mySize
+
+    mySize = this%backend%getSize()
+
+  end function ${TYPENAME}$_size
 
 
   subroutine append(this, item)
