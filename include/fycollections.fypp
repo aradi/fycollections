@@ -10,8 +10,14 @@
     private
     type(PtrList) :: backend
   contains
+    procedure :: reset
     procedure :: append
+    procedure :: insertItem
+    procedure :: insertList
+    generic :: insert => insertItem, insertList
     procedure :: get
+    procedure :: set
+    procedure :: delete
     procedure :: find
   end type ${TYPENAME}$
 
@@ -36,6 +42,15 @@ contains
   end subroutine ${TYPENAME}$_init
 
 
+  subroutine reset(this, minSize)
+    class(${TYPENAME}$), intent(inout) :: this
+    integer, intent(in), optional :: minSize
+
+    call this%backend%reset(minSize)
+
+  end subroutine reset
+    
+
   function ${TYPENAME}$_size(this) result(mySize)
     type(${TYPENAME}$), intent(in) :: this
     integer :: mySize
@@ -57,17 +72,63 @@ contains
   end subroutine append
 
 
+  subroutine insertItem(this, ind, item)
+    class(${TYPENAME}$), intent(inout) :: this
+    integer, intent(in) :: ind
+    ${ITEMTYPE}$, intent(in) :: item
+
+    ${ITEMTYPE}$, pointer :: pItem
+
+    allocate(pItem, source=item)
+    call this%backend%insert(ind, c_loc(pItem))
+
+  end subroutine insertItem
+
+
+  subroutine insertList(this, ind, list)
+    class(${TYPENAME}$), intent(inout) :: this
+    integer, intent(in) :: ind
+    type(${TYPENAME}$), intent(in) :: list
+
+    call this%backend%insert(ind, list%backend)
+
+  end subroutine insertList
+
+
   function get(this, ind) result(item)
-    class(IntList), intent(in) :: this
+    class(${TYPENAME}$), intent(in) :: this
     integer, intent(in) :: ind
     ${ITEMTYPE}$ :: item
 
-    integer, pointer :: pItem
+    ${ITEMTYPE}$, pointer :: pItem
 
     call c_f_pointer(this%backend%get(ind), pItem)
     item = pItem
 
   end function get
+
+
+  subroutine set(this, ind, item)
+    class(${TYPENAME}$), intent(inout) :: this
+    integer, intent(in) :: ind
+    ${ITEMTYPE}$, intent(in) :: item
+
+    ${ITEMTYPE}$, pointer :: pItem
+
+    allocate(pItem, source=item)
+    call this%backend%set(ind, c_loc(pItem))
+
+  end subroutine set
+
+
+  subroutine delete(this, ind, items)
+    class(${TYPENAME}$), intent(inout) :: this
+    integer, intent(in) :: ind
+    integer, intent(in), optional :: items
+
+    call this%backend%delete(ind, items)
+
+  end subroutine delete
 
 
   function find(this, item) result(ind)
