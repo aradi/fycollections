@@ -1,0 +1,114 @@
+#:mute
+
+#! Defines a list  
+#:def define_list_type(TYPENAME, ITEMTYPE)
+
+  public :: ${TYPENAME}$, ${TYPENAME}$_init
+
+  
+  type :: ${TYPENAME}$
+    private
+    type(PtrList) :: backend
+  contains
+    procedure :: append
+    procedure :: get
+    procedure :: find
+  end type ${TYPENAME}$
+  
+contains
+
+  subroutine ${TYPENAME}$_init(this)
+    type(${TYPENAME}$), intent(out) :: this
+
+    procedure(copyInterface), pointer :: pAssignTo
+    procedure(destructInterface), pointer :: pDestruct
+    procedure(isEqualInterface), pointer :: pIsEqual
+
+    pAssignTo => copy
+    pDestruct => destruct
+    pIsEqual => isEqual
+    call PtrList_init(this%backend, pAssignTo, pDestruct, pIsEqual)
+    
+  end subroutine ${TYPENAME}$_init
+
+
+  subroutine append(this, item)
+    class(${TYPENAME}$), intent(inout) :: this
+    ${ITEMTYPE}$, intent(in) :: item
+
+    ${ITEMTYPE}$, pointer :: pItem
+
+    allocate(pItem, source=item)
+    call this%backend%append(c_loc(pItem))
+
+  end subroutine append
+
+
+  function get(this, ind) result(item)
+    class(IntList), intent(in) :: this
+    integer, intent(in) :: ind
+    ${ITEMTYPE}$ :: item
+
+    integer, pointer :: pItem
+
+    call c_f_pointer(this%backend%get(ind), pItem)
+    item = pItem
+
+  end function get
+
+
+  function find(this, item) result(ind)
+    class(IntList), intent(in) :: this
+    ${ITEMTYPE}$, intent(in), target :: item
+    integer :: ind
+
+    ind = this%backend%find(c_loc(item))
+
+  end function find
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Private routines
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine copy(ptr1, ptr2)
+    type(c_ptr), intent(in) :: ptr1
+    type(c_ptr), intent(out) :: ptr2
+
+    ${ITEMTYPE}$, pointer :: pItem1, pItem2
+
+    call c_f_pointer(ptr1, pItem1)
+    allocate(pItem2, source=pItem1)
+    ptr2 = c_loc(pItem2)
+
+  end subroutine copy
+
+
+  subroutine destruct(ptr)
+    type(c_ptr), intent(inout) :: ptr
+
+    ${ITEMTYPE}$, pointer :: pItem
+
+    call c_f_pointer(ptr, pItem)
+    deallocate(pItem)
+    ptr = C_NULL_PTR
+
+  end subroutine destruct
+
+  
+  function isEqual(ptr1, ptr2)
+    type(c_ptr), intent(in) :: ptr1, ptr2
+    logical :: isEqual
+
+    ${ITEMTYPE}$, pointer :: pItem1, pItem2
+
+    call c_f_pointer(ptr1, pItem1)
+    call c_f_pointer(ptr2, pItem2)
+    isEqual = (pItem1 == pItem2)
+
+  end function isEqual
+
+#:enddef  
+
+
+#:endmute

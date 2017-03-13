@@ -1,0 +1,14 @@
+.SECONDEXPANSION:
+
+module.o: $$(_modobj_fycollections_ptrlist)
+module.o = module.o $($(_modobj_fycollections_ptrlist))
+_modobj_fycollections = module.o
+
+ptrlist.o: $$(_modobj_fycollections_interfaces)
+ptrlist.o = ptrlist.o $($(_modobj_fycollections_interfaces))
+_modobj_fycollections_ptrlist = ptrlist.o
+
+interfaces.o: 
+interfaces.o = interfaces.o 
+_modobj_fycollections_interfaces = interfaces.o
+

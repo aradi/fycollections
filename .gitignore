@@ -1,0 +1,5 @@
+make.arch
+*.o
+*.pyc
+*~
+*.mod
