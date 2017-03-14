@@ -23,7 +23,6 @@ module fycollections_ptrlist
     procedure :: append
     procedure :: insertItem
     procedure :: insertList
-    generic :: insert => insertItem, insertList
     procedure :: get
     procedure :: set
     procedure :: delete
