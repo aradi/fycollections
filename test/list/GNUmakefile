@@ -2,13 +2,13 @@
 .SUFFIXES: .fpp .f90 .o
 #.PRECIOUS: %.f90
 
-include ../make.arch
+include ../../make.arch
 
-FYCOLLECTIONS_BLDDIR = _fycollections
+FYCOLLECTIONS_BLDDIR = ../_fycollections
 FYCOLLECTIONS_SRCDIR = ../../lib
 FYCOLLECTIONS_LIB = $(FYCOLLECTIONS_BLDDIR)/libfycollections.a
 
-FYTEST_BLDDIR = _fytest
+FYTEST_BLDDIR = ../_fytest
 FYTEST_SRCDIR = ../../external/fytest/lib
 FYTEST_LIB = $(FYTEST_BLDDIR)/libfytest.a
 
@@ -47,7 +47,7 @@ test_stringlist: $(test_stringlist.o)
 	$(FXX) $(FXXOPT) -I$(FYCOLLECTIONS_BLDDIR) -I$(FYTEST_BLDDIR) -c $< -o $@
 
 %.f90: %.fpp
-	$(FYPP) $(FYPPOPT) -I../include -I../external/fytest/include $< $@
+	$(FYPP) $(FYPPOPT) -I../../include -I../../external/fytest/include $< $@
 
 
 #
