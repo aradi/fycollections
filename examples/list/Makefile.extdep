@@ -1,0 +1,5 @@
+type_intlist.o: $(FYCOLLECTIONS_LIB)
+
+type_int1list.o: $(FYCOLLECTIONS_LIB)
+
+type_stringlist.o: $(FYCOLLECTIONS_LIB)

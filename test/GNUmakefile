@@ -14,24 +14,28 @@ FYTEST_LIB = $(FYTEST_BLDDIR)/libfytest.a
 
 LIBS = -L$(FYCOLLECTIONS_BLDDIR) -lfycollections -L$(FYTEST_BLDDIR) -lfytest
 
-TARGETS = test_intlist
+TARGETS = test_intlist test_int1list test_stringlist
 
 ALL: $(TARGETS)
 
 
 #
-# Dependencies
+# Include automatic internal and manual external dependencies
 # 
 include Makefile.dep
-
-type_intlist.o: $(FYCOLLECTIONS_LIB)
-test_intlist.o: $(FYTEST_LIB)
+include Makefile.extdep
 
 
 #
 # Build targets
 #
 test_intlist: $(test_intlist.o)
+	$(LN) -o $@ $^ $(LIBS)
+
+test_int1list: $(test_int1list.o)
+	$(LN) -o $@ $^ $(LIBS)
+
+test_stringlist: $(test_stringlist.o)
 	$(LN) -o $@ $^ $(LIBS)
 
 

@@ -1,12 +1,48 @@
 #:mute
 
-#! Defines a list  
-#:def define_list_type(TYPENAME, ITEMTYPE)
+#! Comparison types
+#:set NO_COMPARISON = 0
+#:set COMPARE_VALUE = 1
+#:set COMPARE_ASSOCIATION = 2
+#:set COMPARISONS = [NO_COMPARISON, COMPARE_VALUE, COMPARE_ASSOCIATION]
 
-  public :: ${TYPENAME}$, ${TYPENAME}$_init, size
+#! Assignment types
+#:set ASSIGN_VALUE = 1
+#:set ASSIGN_POINTER = 2
+#:set ASSIGNMENTS = [ASSIGN_VALUE, ASSIGN_POINTER]
+
+
+#! Defines a list  
+#:def define_list_type(TYPE_NAME, ITEM_TYPE_IN, ITEM_TYPE_OUT, ITEM_ATTRIBS_IN='',&
+    & ITEM_ATTRIBS_OUT='', ITEM_COMPARISON=COMPARE_VALUE, ITEM_ASSIGNMENT=ASSIGN_VALUE)
+
+  #:mute
+
+    #:assert ITEM_COMPARISON in COMPARISONS
+    #:assert ITEM_ASSIGNMENT in ASSIGNMENTS
+
+    #:if ITEM_ATTRIBS_OUT.strip()
+       #:set ITEM_TYPE_OUT = ITEM_TYPE_OUT + ',' + ITEM_ATTRIBS_OUT
+    #:endif
+
+    #:if ITEM_ATTRIBS_IN.strip()
+       #:set ITEM_TYPE_IN = ITEM_TYPE_IN + ',' + ITEM_ATTRIBS_IN
+    #:endif
+
+    #:set IS_ARRAY = 'dimension' in ITEM_ATTRIBS_IN.lower()
+    #:set SET = ('=' if ITEM_ASSIGNMENT == ASSIGN_VALUE else '=>')
+
+  #:endmute
+
+  public :: ${TYPE_NAME}$, ${TYPE_NAME}$_init, size
+
+
+  type :: ItemWrapper
+    ${ITEM_TYPE_OUT}$ :: item
+  end type ItemWrapper
 
   
-  type :: ${TYPENAME}$
+  type :: ${TYPE_NAME}$
     private
     type(PtrList) :: backend
   contains
@@ -19,16 +55,16 @@
     procedure :: set
     procedure :: delete
     procedure :: find
-  end type ${TYPENAME}$
+  end type ${TYPE_NAME}$
 
   interface size
-    module procedure ${TYPENAME}$_size
+    module procedure ${TYPE_NAME}$_size
   end interface size
   
 contains
 
-  subroutine ${TYPENAME}$_init(this)
-    type(${TYPENAME}$), intent(out) :: this
+  subroutine ${TYPE_NAME}$_init(this)
+    type(${TYPE_NAME}$), intent(out) :: this
 
     procedure(copyInterface), pointer :: pAssignTo
     procedure(destructInterface), pointer :: pDestruct
@@ -36,14 +72,18 @@ contains
 
     pAssignTo => copy
     pDestruct => destruct
+  #:if ITEM_COMPARISON == NO_COMPARISON
+    pIsEqual => null()
+  #:else
     pIsEqual => isEqual
+  #:endif
     call PtrList_init(this%backend, pAssignTo, pDestruct, pIsEqual)
     
-  end subroutine ${TYPENAME}$_init
+  end subroutine ${TYPE_NAME}$_init
 
 
   subroutine reset(this, minSize)
-    class(${TYPENAME}$), intent(inout) :: this
+    class(${TYPE_NAME}$), intent(inout) :: this
     integer, intent(in), optional :: minSize
 
     call this%backend%reset(minSize)
@@ -51,44 +91,46 @@ contains
   end subroutine reset
     
 
-  function ${TYPENAME}$_size(this) result(mySize)
-    type(${TYPENAME}$), intent(in) :: this
+  function ${TYPE_NAME}$_size(this) result(mySize)
+    type(${TYPE_NAME}$), intent(in) :: this
     integer :: mySize
 
     mySize = this%backend%getSize()
 
-  end function ${TYPENAME}$_size
+  end function ${TYPE_NAME}$_size
 
 
   subroutine append(this, item)
-    class(${TYPENAME}$), intent(inout) :: this
-    ${ITEMTYPE}$, intent(in) :: item
+    class(${TYPE_NAME}$), intent(inout) :: this
+    ${ITEM_TYPE_IN}$, intent(in) :: item
 
-    ${ITEMTYPE}$, pointer :: pItem
+    type(ItemWrapper), pointer :: wrapper
 
-    allocate(pItem, source=item)
-    call this%backend%append(c_loc(pItem))
+    allocate(wrapper)
+    wrapper%item ${SET}$ item
+    call this%backend%append(c_loc(wrapper))
 
   end subroutine append
 
 
   subroutine insertItem(this, ind, item)
-    class(${TYPENAME}$), intent(inout) :: this
+    class(${TYPE_NAME}$), intent(inout) :: this
     integer, intent(in) :: ind
-    ${ITEMTYPE}$, intent(in) :: item
+    ${ITEM_TYPE_IN}$, intent(in) :: item
 
-    ${ITEMTYPE}$, pointer :: pItem
+    type(ItemWrapper), pointer :: wrapper
 
-    allocate(pItem, source=item)
-    call this%backend%insert(ind, c_loc(pItem))
+    allocate(wrapper)
+    wrapper%item ${SET}$ item
+    call this%backend%insert(ind, c_loc(wrapper))
 
   end subroutine insertItem
 
 
   subroutine insertList(this, ind, list)
-    class(${TYPENAME}$), intent(inout) :: this
+    class(${TYPE_NAME}$), intent(inout) :: this
     integer, intent(in) :: ind
-    type(${TYPENAME}$), intent(in) :: list
+    type(${TYPE_NAME}$), intent(in) :: list
 
     call this%backend%insert(ind, list%backend)
 
@@ -96,33 +138,34 @@ contains
 
 
   function get(this, ind) result(item)
-    class(${TYPENAME}$), intent(in) :: this
+    class(${TYPE_NAME}$), intent(in) :: this
     integer, intent(in) :: ind
-    ${ITEMTYPE}$ :: item
+    ${ITEM_TYPE_OUT}$ :: item
 
-    ${ITEMTYPE}$, pointer :: pItem
+    type(ItemWrapper), pointer :: wrapper
 
-    call c_f_pointer(this%backend%get(ind), pItem)
-    item = pItem
+    call c_f_pointer(this%backend%get(ind), wrapper)
+    item ${SET}$ wrapper%item
 
   end function get
 
 
   subroutine set(this, ind, item)
-    class(${TYPENAME}$), intent(inout) :: this
+    class(${TYPE_NAME}$), intent(inout) :: this
     integer, intent(in) :: ind
-    ${ITEMTYPE}$, intent(in) :: item
+    ${ITEM_TYPE_IN}$, intent(in) :: item
 
-    ${ITEMTYPE}$, pointer :: pItem
+    type(ItemWrapper), pointer :: wrapper
 
-    allocate(pItem, source=item)
-    call this%backend%set(ind, c_loc(pItem))
+    allocate(wrapper)
+    wrapper%item ${SET}$ item
+    call this%backend%set(ind, c_loc(wrapper))
 
   end subroutine set
 
 
   subroutine delete(this, ind, items)
-    class(${TYPENAME}$), intent(inout) :: this
+    class(${TYPE_NAME}$), intent(inout) :: this
     integer, intent(in) :: ind
     integer, intent(in), optional :: items
 
@@ -131,15 +174,23 @@ contains
   end subroutine delete
 
 
+#:if ITEM_COMPARISON != NO_COMPARISON
+
   function find(this, item) result(ind)
-    class(IntList), intent(in) :: this
-    ${ITEMTYPE}$, intent(in), target :: item
+    class(${TYPE_NAME}$), intent(in) :: this
+    ${ITEM_TYPE_IN}$, intent(in), target :: item
     integer :: ind
 
-    ind = this%backend%find(c_loc(item))
+    type(ItemWrapper), pointer :: wrapper
+
+    allocate(wrapper)
+    wrapper%item ${SET}$ item
+    ind = this%backend%find(c_loc(wrapper))
+    deallocate(wrapper)
 
   end function find
 
+#:endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!! Private routines
@@ -149,11 +200,12 @@ contains
     type(c_ptr), intent(in) :: ptr1
     type(c_ptr), intent(out) :: ptr2
 
-    ${ITEMTYPE}$, pointer :: pItem1, pItem2
+    type(ItemWrapper), pointer :: wrapper1, wrapper2
 
-    call c_f_pointer(ptr1, pItem1)
-    allocate(pItem2, source=pItem1)
-    ptr2 = c_loc(pItem2)
+    call c_f_pointer(ptr1, wrapper1)
+    allocate(wrapper2)
+    wrapper2%item ${SET}$ wrapper1%item
+    ptr2 = c_loc(wrapper2)
 
   end subroutine copy
 
@@ -161,10 +213,10 @@ contains
   subroutine destruct(ptr)
     type(c_ptr), intent(inout) :: ptr
 
-    ${ITEMTYPE}$, pointer :: pItem
+    type(ItemWrapper), pointer :: wrapper
 
-    call c_f_pointer(ptr, pItem)
-    deallocate(pItem)
+    call c_f_pointer(ptr, wrapper)
+    deallocate(wrapper)
     ptr = C_NULL_PTR
 
   end subroutine destruct
@@ -174,11 +226,17 @@ contains
     type(c_ptr), intent(in) :: ptr1, ptr2
     logical :: isEqual
 
-    ${ITEMTYPE}$, pointer :: pItem1, pItem2
+    type(ItemWrapper), pointer :: wrapper1, wrapper2
 
-    call c_f_pointer(ptr1, pItem1)
-    call c_f_pointer(ptr2, pItem2)
-    isEqual = (pItem1 == pItem2)
+    call c_f_pointer(ptr1, wrapper1)
+    call c_f_pointer(ptr2, wrapper2)
+    #:if ITEM_COMPARISON == COMPARE_ASSOCIATION
+      isEqual = associated(wrapper1%item, wrapper2%item)
+    #:elif IS_ARRAY
+      isEqual = all(wrapper1%item == wrapper2%item)
+    #:else
+      isEqual = (wrapper1%item == wrapper2%item)
+    #:endif
 
   end function isEqual
 

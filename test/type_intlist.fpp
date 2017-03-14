@@ -5,6 +5,9 @@ module type_intlist
   implicit none
   private
 
-  $:define_list_type(TYPENAME='IntList', ITEMTYPE='integer')
+  $:define_list_type(&
+      & TYPE_NAME='IntList',&
+      & ITEM_TYPE_IN='integer',&
+      & ITEM_TYPE_OUT='integer')
 
 end module type_intlist

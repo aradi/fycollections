@@ -1,9 +1,23 @@
 .SECONDEXPANSION:
 
+intlist_example.o: $$(_modobj_type_intlist)
+intlist_example.o = intlist_example.o $($(_modobj_type_intlist))
+
 type_intlist.o: $$(_modobj_fycollections)
 type_intlist.o = type_intlist.o $($(_modobj_fycollections))
 _modobj_type_intlist = type_intlist.o
 
-intlist_example.o: $$(_modobj_type_intlist)
-intlist_example.o = intlist_example.o $($(_modobj_type_intlist))
+int1list_example.o: $$(_modobj_type_int1list)
+int1list_example.o = int1list_example.o $($(_modobj_type_int1list))
+
+type_int1list.o: $$(_modobj_fycollections)
+type_int1list.o = type_int1list.o $($(_modobj_fycollections))
+_modobj_type_int1list = type_int1list.o
+
+stringlist_example.o: $$(_modobj_type_stringlist)
+stringlist_example.o = stringlist_example.o $($(_modobj_type_stringlist))
+
+type_stringlist.o: $$(_modobj_fycollections)
+type_stringlist.o = type_stringlist.o $($(_modobj_fycollections))
+_modobj_type_stringlist = type_stringlist.o
 

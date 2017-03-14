@@ -10,7 +10,7 @@ FYCOLLECTIONS_LIB = $(FYCOLLECTIONS_BLDDIR)/libfycollections.a
 
 LIBS = -L$(FYCOLLECTIONS_BLDDIR) -lfycollections
 
-TARGETS = intlist_example
+TARGETS = intlist_example int1list_example stringlist_example
 
 ALL: $(TARGETS)
 
@@ -19,14 +19,18 @@ ALL: $(TARGETS)
 # Dependencies
 # 
 include Makefile.dep
-
-type_intlist.o: $(FYCOLLECTIONS_LIB)
-
+include Makefile.extdep
 
 #
 # Build targets
 #
 intlist_example: $(intlist_example.o)
+	$(LN) -o $@ $^ $(LIBS)
+
+int1list_example: $(int1list_example.o)
+	$(LN) -o $@ $^ $(LIBS)
+
+stringlist_example: $(stringlist_example.o)
 	$(LN) -o $@ $^ $(LIBS)
 
 
