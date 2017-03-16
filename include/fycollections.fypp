@@ -178,7 +178,7 @@ contains
 
   function find(this, item) result(ind)
     class(${TYPE_NAME}$), intent(in) :: this
-    ${ITEM_TYPE_IN}$, intent(in), target :: item
+    ${ITEM_TYPE_IN}$, intent(in) :: item
     integer :: ind
 
     type(ItemWrapper), pointer :: wrapper

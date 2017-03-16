@@ -1,5 +1,12 @@
 .SECONDEXPANSION:
 
+type_int1ptrlist.o: $$(_modobj_fycollections)
+type_int1ptrlist.o = type_int1ptrlist.o $($(_modobj_fycollections))
+_modobj_type_int1ptrlist = type_int1ptrlist.o
+
+int1ptrlist_example.o: $$(_modobj_type_int1ptrlist)
+int1ptrlist_example.o = int1ptrlist_example.o $($(_modobj_type_int1ptrlist))
+
 intlist_example.o: $$(_modobj_type_intlist)
 intlist_example.o = intlist_example.o $($(_modobj_type_intlist))
 

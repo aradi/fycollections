@@ -10,7 +10,7 @@ FYCOLLECTIONS_LIB = $(FYCOLLECTIONS_BLDDIR)/libfycollections.a
 
 LIBS = -L$(FYCOLLECTIONS_BLDDIR) -lfycollections
 
-TARGETS = intlist_example int1list_example stringlist_example
+TARGETS = intlist_example int1list_example int1ptrlist_example stringlist_example
 
 ALL: $(TARGETS)
 
@@ -28,6 +28,9 @@ intlist_example: $(intlist_example.o)
 	$(LN) -o $@ $^ $(LIBS)
 
 int1list_example: $(int1list_example.o)
+	$(LN) -o $@ $^ $(LIBS)
+
+int1ptrlist_example: $(int1ptrlist_example.o)
 	$(LN) -o $@ $^ $(LIBS)
 
 stringlist_example: $(stringlist_example.o)

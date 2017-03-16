@@ -1,23 +1,30 @@
 .SECONDEXPANSION:
 
-type_intlist.o: $$(_modobj_fycollections)
-type_intlist.o = type_intlist.o $($(_modobj_fycollections))
-_modobj_type_intlist = type_intlist.o
+test_int1list.o: $$(_modobj_type_int1list)
+test_int1list.o = test_int1list.o $($(_modobj_type_int1list))
 
 test_intlist.o: $$(_modobj_type_intlist)
 test_intlist.o = test_intlist.o $($(_modobj_type_intlist))
 
-test_int1list.o: $$(_modobj_type_int1list)
-test_int1list.o = test_int1list.o $($(_modobj_type_int1list))
+test_stringlist.o: $$(_modobj_type_stringlist)
+test_stringlist.o = test_stringlist.o $($(_modobj_type_stringlist))
 
 type_int1list.o: $$(_modobj_fycollections)
 type_int1list.o = type_int1list.o $($(_modobj_fycollections))
 _modobj_type_int1list = type_int1list.o
 
+type_intlist.o: $$(_modobj_fycollections)
+type_intlist.o = type_intlist.o $($(_modobj_fycollections))
+_modobj_type_intlist = type_intlist.o
+
 type_stringlist.o: $$(_modobj_fycollections)
 type_stringlist.o = type_stringlist.o $($(_modobj_fycollections))
 _modobj_type_stringlist = type_stringlist.o
 
-test_stringlist.o: $$(_modobj_type_stringlist)
-test_stringlist.o = test_stringlist.o $($(_modobj_type_stringlist))
+type_int1ptrlist.o: $$(_modobj_fycollections)
+type_int1ptrlist.o = type_int1ptrlist.o $($(_modobj_fycollections))
+_modobj_type_int1ptrlist = type_int1ptrlist.o
+
+test_int1ptrlist.o: $$(_modobj_type_int1ptrlist)
+test_int1ptrlist.o = test_int1ptrlist.o $($(_modobj_type_int1ptrlist))
 

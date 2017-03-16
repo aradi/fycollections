@@ -14,7 +14,7 @@ FYTEST_LIB = $(FYTEST_BLDDIR)/libfytest.a
 
 LIBS = -L$(FYCOLLECTIONS_BLDDIR) -lfycollections -L$(FYTEST_BLDDIR) -lfytest
 
-TARGETS = test_intlist test_int1list test_stringlist
+TARGETS = test_intlist test_int1list test_int1ptrlist test_stringlist
 
 ALL: $(TARGETS)
 
@@ -33,6 +33,9 @@ test_intlist: $(test_intlist.o)
 	$(LN) -o $@ $^ $(LIBS)
 
 test_int1list: $(test_int1list.o)
+	$(LN) -o $@ $^ $(LIBS)
+
+test_int1ptrlist: $(test_int1ptrlist.o)
 	$(LN) -o $@ $^ $(LIBS)
 
 test_stringlist: $(test_stringlist.o)

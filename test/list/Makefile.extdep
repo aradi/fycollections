@@ -4,5 +4,8 @@ test_intlist.o: $(FYTEST_LIB)
 type_int1list.o: $(FYCOLLECTIONS_LIB)
 test_int1list.o: $(FYTEST_LIB)
 
+type_int1ptrlist.o: $(FYCOLLECTIONS_LIB)
+test_int1ptrlist.o: $(FYTEST_LIB)
+
 type_stringlist.o: $(FYCOLLECTIONS_LIB)
 test_stringlist.o: $(FYTEST_LIB)
